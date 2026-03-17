@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NRI FIRE Calculator - Rupee Stories</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+
+    /* Better balanced palette */
+    --bg-page: #FCF8F2;
+    --bg-card: #FFFFFF;
+    --bg-panel: #F4EEE3;
+    --bg-panel-2: #EFE6D8;
+
+    --text: #1F2937;
+    --text-soft: #5B6472;
+    --text-faint: #8A94A6;
+
+    --primary: #2F5D8A;
+    --primary-2: #4578A8;
+    --primary-soft: rgba(47, 93, 138, 0.10);
+    --primary-soft-2: rgba(69, 120, 168, 0.14);
+
+    --accent: #C98A2E;
+    --accent-soft: rgba(201, 138, 46, 0.12);
+
+    --success: #2E8B57;
+    --success-soft: rgba(46, 139, 87, 0.12);
+    --warning: #C67A1A;
+    --warning-soft: rgba(198, 122, 26, 0.12);
+    --danger: #C94A44;
+    --danger-soft: rgba(201, 74, 68, 0.12);
+
+    --border: rgba(31, 41, 55, 0.10);
+    --border-strong: rgba(31, 41, 55, 0.16);
+
+    --radius-sm: 8px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+
+    --shadow-sm: 0 8px 22px rgba(45, 55, 72, 0.05);
+    --shadow-md: 0 18px 40px rgba(45, 55, 72, 0.08);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-page: #15171A;
+      --bg-card: #1D2127;
+      --bg-panel: #252A31;
+      --bg-panel-2: #2B3139;
+
+      --text: #F4F1EC;
+      --text-soft: #C8C1B6;
+      --text-faint: #9F988D;
+
+      --primary: #78A9D4;
+      --primary-2: #5F95C4;
+      --primary-soft: rgba(120, 169, 212, 0.12);
+      --primary-soft-2: rgba(95, 149, 196, 0.18);
+
+      --accent: #D8A24A;
+      --accent-soft: rgba(216, 162, 74, 0.14);
+
+      --success: #66C28A;
+      --success-soft: rgba(102, 194, 138, 0.14);
+      --warning: #E0A14B;
+      --warning-soft: rgba(224, 161, 75, 0.14);
+      --danger: #E07B73;
+      --danger-soft: rgba(224, 123, 115, 0.14);
+
+      --border: rgba(244, 241, 236, 0.08);
+      --border-strong: rgba(244, 241, 236, 0.14);
+
+      --shadow-sm: 0 10px 24px rgba(0,0,0,0.22);
+      --shadow-md: 0 20px 38px rgba(0,0,0,0.28);
+    }
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background:
+      radial-gradient(circle at top left, rgba(201,138,46,0.10), transparent 28%),
+      radial-gradient(circle at top right, rgba(69,120,168,0.08), transparent 32%),
+      var(--bg-page);
+    color: var(--text);
+    margin: 0;
+    padding: 24px;
+  }
+
+  #app {
+    max-width: 1220px;
+    margin: 0 auto;
+    font-family: var(--font-sans);
+  }
+
+  .hdr {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .hdr-t {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .badge {
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    border: 1px solid transparent;
+  }
+
+  .b-or {
+    background: var(--primary-soft);
+    color: var(--primary);
+    border-color: rgba(47, 93, 138, 0.14);
+  }
+
+  .b-gd {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: rgba(201, 138, 46, 0.16);
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 290px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  @media (max-width: 760px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  .inp {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: sticky;
+    top: 16px;
+  }
+
+  @media (max-width: 760px) {
+    .inp { position: static; }
+  }
+
+  .acc,
+  .card,
+  .mc,
+  .nc {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .acc {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .acc-h {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 13px;
+    cursor: pointer;
+    user-select: none;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  }
+
+  .acc-ht {
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .acc-ico {
+    font-size: 10px;
+    color: var(--text-soft);
+    transition: transform .2s;
+    display: inline-block;
+  }
+
+  .acc.op .acc-ico { transform: rotate(180deg); }
+
+  .acc-b {
+    display: none;
+    padding: 0 13px 13px;
+    flex-direction: column;
+    gap: 11px;
+  }
+
+  .acc.op .acc-b { display: flex; }
+
+  .f {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .f > label {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--text-soft);
+    line-height: 1.35;
+  }
+
+  .f > label b {
+    font-weight: 700;
+    color: var(--text);
+    font-size: 12px;
+  }
+
+  .f input[type=range] {
+    width: 100%;
+    accent-color: var(--primary-2);
+  }
+
+  .res {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .ft {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-panel);
+    padding: 4px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .ft-b {
+    flex: 1;
+    min-width: 108px;
+    padding: 8px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    border: none;
+    background: transparent;
+    color: var(--text-soft);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all .16s ease;
+    white-space: nowrap;
+  }
+
+  .ft-b:hover {
+    background: rgba(255,255,255,0.55);
+    color: var(--primary);
+  }
+
+  .ft-b.a {
+    background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(47, 93, 138, 0.18);
+  }
+
+  .mg {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  @media (max-width: 620px) {
+    .mg { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .mc {
+    border-radius: var(--radius-lg);
+    padding: 12px 13px;
+  }
+
+  .mc-l {
+    font-size: 10px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+
+  .mc-v {
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .mc-s {
+    font-size: 11px;
+    color: var(--text-soft);
+    margin-top: 5px;
+    line-height: 1.35;
+  }
+
+  .c-or { color: var(--primary); }
+  .c-gd { color: var(--accent); }
+  .c-gr { color: var(--success); }
+  .c-wa { color: var(--warning); }
+  .c-dn { color: var(--danger); }
+
+  .pb {
+    height: 8px;
+    background: var(--bg-panel);
+    border-radius: 999px;
+    overflow: hidden;
+    margin: 2px 0 5px;
+    border: 1px solid var(--border);
+  }
+
+  .pf {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 999px;
+    transition: width .45s ease;
+  }
+
+  .pl {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 11px;
+    color: var(--text-soft);
+  }
+
+  .card {
+    border-radius: var(--radius-lg);
+    padding: 14px;
+  }
+
+  .card-t {
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 3px;
+  }
+
+  .card-s {
+    font-size: 12px;
+    color: var(--text-soft);
+    margin-bottom: 11px;
+    line-height: 1.45;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-panel);
+    padding: 4px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+  }
+
+  .tab {
+    flex: 1;
+    padding: 8px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    border: none;
+    background: transparent;
+    color: var(--text-soft);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all .16s ease;
+    text-align: center;
+  }
+
+  .tab.a {
+    background: var(--bg-card);
+    color: var(--primary);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .mc-run {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 14px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .14s ease, transform .14s ease;
+    white-space: nowrap;
+    box-shadow: 0 12px 24px rgba(47, 93, 138, 0.18);
+  }
+
+  .mc-run:hover { opacity: .94; transform: translateY(-1px); }
+  .mc-run:disabled { opacity: .55; cursor: wait; transform: none; }
+
+  .sm {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 13px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+  }
+
+  .sm-gr { background: var(--success-soft); }
+  .sm-wa { background: var(--warning-soft); }
+  .sm-dn { background: var(--danger-soft); }
+
+  .sm-p {
+    font-size: 28px;
+    font-weight: 800;
+    min-width: 64px;
+  }
+
+  .sm-d {
+    font-size: 12px;
+    color: var(--text-soft);
+    line-height: 1.5;
+  }
+
+  .ng {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  @media (max-width: 640px) {
+    .ng { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .nc {
+    border-radius: var(--radius-lg);
+    padding: 12px;
+  }
+
+  .nc-l {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 7px;
+  }
+
+  .nc-v {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 3px;
+  }
+
+  .nc-s {
+    font-size: 11px;
+    color: var(--text-soft);
+    line-height: 1.45;
+  }
+
+  .tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .tbl th {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: 7px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tbl td {
+    padding: 9px 8px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+    line-height: 1.4;
+  }
+
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl tr.hl td { background: var(--primary-soft); }
+
+  .wr-g {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-top: 11px;
+  }
+
+  @media (max-width: 640px) {
+    .wr-g { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .wr-c {
+    background: var(--bg-panel);
+    border-radius: var(--radius-md);
+    padding: 9px 4px;
+    text-align: center;
+    border: 1px solid transparent;
+  }
+
+  .wr-c.a {
+    background: linear-gradient(180deg, var(--primary-soft), var(--bg-card));
+    border-color: rgba(47, 93, 138, 0.16);
+  }
+
+  .wr-r {
+    font-size: 15px;
+    font-weight: 800;
+  }
+
+  .wr-a {
+    font-size: 10px;
+    color: var(--text-soft);
+    line-height: 1.4;
+  }
+
+  .slbl {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 7px;
+  }
+
+  .leg-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .leg {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text-soft);
+  }
+
+  .ls {
+    width: 18px;
+    height: 4px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+
+  .key-insight {
+    background: linear-gradient(135deg, var(--accent-soft), rgba(255,255,255,0));
+    border-left: 4px solid var(--accent);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    padding: 11px 13px;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.55;
+    box-shadow: var(--shadow-sm);
+  }
+
+  canvas { max-width: 100%; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="hdr">
+    <span class="hdr-t">NRI FIRE Calculator</span>
+    <span class="badge b-or">Monte Carlo, 1,000 runs</span>
+    <span class="badge b-gd">U.S.-based assumptions</span>
+  </div>
+
+  <div class="ft" id="ft">
+    <button class="ft-b" onclick="setFT(this,'lean')">Lean FIRE</button>
+    <button class="ft-b a" onclick="setFT(this,'regular')">Regular FIRE</button>
+    <button class="ft-b" onclick="setFT(this,'fat')">Fat FIRE</button>
+    <button class="ft-b" onclick="setFT(this,'coast')">Coast FIRE</button>
+    <button class="ft-b" onclick="setFT(this,'barista')">Barista FIRE</button>
+  </div>
+
+  <div class="layout" style="margin-top:13px">
+    <div class="inp">
+
+      <div class="acc op" id="a-prof">
+        <div class="acc-h" onclick="tog('a-prof')"><span class="acc-ht">Profile</span><span class="acc-ico">▼</span></div>
+        <div class="acc-b">
+          <div class="f"><label>Current age <b id="lv-age">38</b></label><input type="range" min="22" max="62" value="38" step="1" oninput="u('age',+this.value)"></div>
+          <div class="f"><label>Target FIRE age <b id="lv-ra">55</b></label><input type="range" min="35" max="72" value="55" step="1" oninput="u('ra',+this.value)"></div>
+          <div class="f"><label>Life expectancy <b id="lv-le">90</b></label><input type="range" min="75" max="100" value="90" step="1" oninput="u('le',+this.value)"></div>
+        </div>
+      </div>
+
+      <div class="acc op" id="a-fin">
+        <div class="acc-h" onclick="tog('a-fin')"><span class="acc-ht">US Portfolio</span><span class="acc-ico">▼</span></div>
+        <div class="acc-b">
+          <div class="f"><label>Total US portfolio <b id="lv-pf">$500K</b></label><input type="range" min="0" max="5000000" step="25000" value="500000" oninput="u('pf',+this.value)"></div>
+          <div class="f"><label>of which tax-advantaged <b id="lv-ta">$300K</b></label><input type="range" min="0" max="3000000" step="25000" value="300000" oninput="u('ta',+this.value)"></div>
+          <div class="f"><label>Monthly savings <b id="lv-ms">$5,000</b></label><input type="range" min="0" max="25000" step="500" value="5000" oninput="u('ms',+this.value)"></div>
+          <div class="f"><label>Stock allocation <b id="lv-sp">70%</b></label><input type="range" min="20" max="100" step="5" value="70" oninput="u('sp',+this.value)"></div>
+        </div>
+      </div>
+
+      <div class="acc op" id="a-ind">
+        <div class="acc-h" onclick="tog('a-ind')"><span class="acc-ht">India Assets</span><span class="acc-ico">▼</span></div>
+        <div class="acc-b">
+          <div class="f"><label>India assets (₹ lakhs) <b id="lv-il">₹50L</b></label><input type="range" min="0" max="1000" step="5" value="50" oninput="u('il',+this.value)"></div>
+          <div class="f"><label>USD/INR rate <b id="lv-xr">₹84</b></label><input type="range" min="70" max="110" step="0.5" value="84" oninput="u('xr',+this.value)"></div>
+          <div class="f"><label>India pension income (₹/mo) <b id="lv-ip">₹0</b></label><input type="range" min="0" max="200000" step="5000" value="0" oninput="u('ip',+this.value)"></div>
+        </div>
+      </div>
+
+      <div class="acc op" id="a-exp">
+        <div class="acc-h" onclick="tog('a-exp')"><span class="acc-ht">Expenses</span><span class="acc-ico">▼</span></div>
+        <div class="acc-b">
+          <div class="f"><label>Current monthly expenses <b id="lv-me">$8,000</b></label><input type="range" min="2000" max="30000" step="500" value="8000" oninput="u('me',+this.value)"></div>
+          <div class="f"><label>Retirement monthly expenses <b id="lv-re">$7,000</b></label><input type="range" min="1000" max="30000" step="500" value="7000" oninput="u('re',+this.value)"></div>
+          <div class="f"><label>Healthcare bridge ($/mo) <b id="lv-hc">$1,200</b></label><input type="range" min="500" max="3500" step="100" value="1200" oninput="u('hc',+this.value)"></div>
+        </div>
+      </div>
+
+      <div class="acc" id="a-set">
+        <div class="acc-h" onclick="tog('a-set')"><span class="acc-ht">Settings</span><span class="acc-ico">▼</span></div>
+        <div class="acc-b">
+          <div class="f"><label>Expected inflation <b id="lv-inf">3%</b></label><input type="range" min="1" max="8" step="0.5" value="3" oninput="u('inf',+this.value)"></div>
+          <div class="f"><label>Social Security at 67 ($/mo) <b id="lv-ss">$2,000</b></label><input type="range" min="0" max="5000" step="100" value="2000" oninput="u('ss',+this.value)"></div>
+          <div class="f"><label>Barista / part-time income <b id="lv-bi">$0</b></label><input type="range" min="0" max="6000" step="100" value="0" oninput="u('bi',+this.value)"></div>
+          <div class="f"><label>Annual savings increase % <b id="lv-gr">3%</b></label><input type="range" min="0" max="10" step="0.5" value="3" oninput="u('gr',+this.value)"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="res">
+
+      <div class="mg">
+        <div class="mc"><div class="mc-l">FIRE Number</div><div class="mc-v c-or" id="r-fn">-</div><div class="mc-s" id="r-fl">-</div></div>
+        <div class="mc"><div class="mc-l">Years to FIRE</div><div class="mc-v" id="r-yr">-</div><div class="mc-s" id="r-fa">-</div></div>
+        <div class="mc"><div class="mc-l">Progress</div><div class="mc-v" id="r-pr">-</div><div class="mc-s" id="r-pp">-</div></div>
+        <div class="mc"><div class="mc-l">Savings Rate</div><div class="mc-v" id="r-sr">-</div><div class="mc-s">of est. monthly income</div></div>
+      </div>
+
+      <div>
+        <div class="pb"><div class="pf" id="r-pb" style="width:0"></div></div>
+        <div class="pl"><span id="r-pl">-</span><span id="r-pr2">-</span></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div class="tabs">
+            <button class="tab a" id="tab-tl" onclick="sw('tl')">Timeline</button>
+            <button class="tab" id="tab-mc" onclick="sw('mc')">Monte Carlo</button>
+            <button class="tab" id="tab-wr" onclick="sw('wr')">Withdrawal Rates</button>
+          </div>
+        </div>
+
+        <div id="p-tl">
+          <div class="card-s">Portfolio growth toward FIRE target using nominal returns and inflation-adjusted retirement spending.</div>
+          <div style="position:relative;height:220px"><canvas id="tlC"></canvas></div>
+          <div class="leg-row">
+            <span class="leg"><span class="ls" style="background:rgba(69,120,168,0.58)"></span>Portfolio</span>
+            <span class="leg"><span class="ls" style="background:#C98A2E"></span>FIRE target</span>
+            <span class="leg"><span class="ls" style="background:rgba(201,138,46,0.55);border:1px dashed #C98A2E"></span>Coast FIRE</span>
+          </div>
+        </div>
+
+        <div id="p-mc" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+            <div class="card-s" style="margin:0">1,000 scenarios with variable annual returns, inflation-adjusted spending after retirement.</div>
+            <button class="mc-run" id="mc-btn" onclick="runMC()">Run Simulation</button>
+          </div>
+          <div id="mc-res" style="display:none;margin-bottom:11px"></div>
+          <div style="position:relative;height:240px"><canvas id="mcC"></canvas></div>
+          <div class="leg-row">
+            <span class="leg"><span class="ls" style="background:rgba(69,120,168,0.08);border:1px solid rgba(69,120,168,0.24)"></span>10th to 90th percentile</span>
+            <span class="leg"><span class="ls" style="background:rgba(69,120,168,0.20)"></span>25th to 75th percentile</span>
+            <span class="leg"><span class="ls" style="background:#4578A8;height:2px"></span>Median outcome</span>
+          </div>
+        </div>
+
+        <div id="p-wr" style="display:none">
+          <div class="card-s">Annual income your projected retirement portfolio can support at different withdrawal rates.</div>
+          <div style="position:relative;height:190px"><canvas id="wrC"></canvas></div>
+          <div class="wr-g" id="wr-g"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="slbl">NRI Intelligence</div>
+        <div class="ng">
+          <div class="nc"><div class="nc-l">India assets in USD</div><div class="nc-v c-or" id="n-iu">-</div><div class="nc-s" id="n-is">-</div></div>
+          <div class="nc"><div class="nc-l">Healthcare bridge cost</div><div class="nc-v" id="n-hc">-</div><div class="nc-s" id="n-hs">-</div></div>
+          <div class="nc"><div class="nc-l">Social Security (adj.)</div><div class="nc-v c-gr" id="n-ss">-</div><div class="nc-s" id="n-sss">-</div></div>
+          <div class="nc"><div class="nc-l">Net annual withdrawal</div><div class="nc-v" id="n-nw">-</div><div class="nc-s" id="n-ns">-</div></div>
+          <div class="nc"><div class="nc-l">Coast FIRE number</div><div class="nc-v c-gd" id="n-cf">-</div><div class="nc-s" id="n-cs">-</div></div>
+          <div class="nc"><div class="nc-l">Effective withdrawal rate</div><div class="nc-v" id="n-ew">-</div><div class="nc-s" id="n-es">-</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-t">All FIRE Scenarios</div>
+        <div class="card-s">Comparison across all five FIRE types based on your inputs.</div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Description</th>
+              <th>FIRE Number</th>
+              <th>Years</th>
+              <th>FIRE Age</th>
+            </tr>
+          </thead>
+          <tbody id="sc-body"></tbody>
+        </table>
+      </div>
+
+      <div id="insight-box" class="key-insight" style="display:none"></div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const S = {
+  age: 38, ra: 55, le: 90,
+  pf: 500000, ta: 300000, ms: 5000, sp: 70,
+  il: 50, xr: 84, ip: 0,
+  me: 8000, re: 7000, hc: 1200,
+  inf: 3, ss: 2000, bi: 0, gr: 3,
+  ft: 'regular'
+};
+
+const rootStyle = getComputedStyle(document.documentElement);
+const COLORS = {
+  primary: rootStyle.getPropertyValue('--primary').trim(),
+  primary2: rootStyle.getPropertyValue('--primary-2').trim(),
+  primarySoftFill: 'rgba(69,120,168,0.08)',
+  primarySoftFillStrong: 'rgba(69,120,168,0.18)',
+  accent: rootStyle.getPropertyValue('--accent').trim(),
+  accentLine: 'rgba(201,138,46,0.55)',
+  grid: 'rgba(128,128,128,0.09)'
+};
+
+const fm = n => {
+  const a = Math.abs(n), s = n < 0 ? '-' : '';
+  if (a >= 1e6) return s + '$' + (a / 1e6).toFixed(2) + 'M';
+  if (a >= 1e3) return s + '$' + Math.round(a / 1e3) + 'K';
+  return (n < 0 ? '-$' : '$') + Math.round(a).toLocaleString();
+};
+
+const fc = n => '$' + Math.round(n).toLocaleString();
+
+const lvFn = {
+  age: v => v,
+  ra: v => v,
+  le: v => v,
+  pf: v => fm(v),
+  ta: v => fm(v),
+  ms: v => fc(v),
+  sp: v => v + '%',
+  il: v => '₹' + v + 'L',
+  xr: v => '₹' + v,
+  ip: v => '₹' + Math.round(v).toLocaleString(),
+  me: v => fc(v),
+  re: v => fc(v),
+  hc: v => fc(v),
+  inf: v => v + '%',
+  ss: v => fc(v),
+  bi: v => fc(v),
+  gr: v => v + '%'
+};
+
+function u(k, v) {
+  S[k] = v;
+  if (S.ta > S.pf) S.ta = S.pf;
+  const el = document.getElementById('lv-' + k);
+  if (el && lvFn[k]) el.textContent = lvFn[k](v);
+  const taEl = document.getElementById('lv-ta');
+  if (taEl) taEl.textContent = lvFn.ta(S.ta);
+  refresh();
+}
+
+function tog(id) {
+  document.getElementById(id).classList.toggle('op');
+}
+
+function setFT(btn, t) {
+  S.ft = t;
+  document.querySelectorAll('.ft-b').forEach(b => b.classList.remove('a'));
+  btn.classList.add('a');
+  refresh();
+}
+
+function getNominalReturn(stockPct) {
+  const sp2 = stockPct / 100;
+  const bp = 1 - sp2;
+  return sp2 * 0.07 + bp * 0.02;
+}
+
+function getFutureExpense(annualExpense, years, inflationPct) {
+  return annualExpense * Math.pow(1 + inflationPct / 100, Math.max(years, 0));
+}
+
+function yearsToTarget(startingPortfolio, annualSavings, annualSavingsGrowth, target, expectedReturn) {
+  if (startingPortfolio >= target) return 0;
+  let p = startingPortfolio;
+  let sav = annualSavings;
+  for (let y = 1; y <= 50; y++) {
+    p = p * (1 + expectedReturn) + sav;
+    sav = sav * (1 + annualSavingsGrowth / 100);
+    if (p >= target) return y;
+  }
+  return null;
+}
+
+function calc() {
+  const { age, ra, le, pf, ms, sp, il, xr, ip, me, re, hc, ss, bi, gr, ft, inf } = S;
+
+  const indiaAssetsUSD = (il * 100000) / xr;
+  const totalNow = pf + indiaAssetsUSD;
+  const annualSavings = ms * 12;
+  const expectedReturn = getNominalReturn(sp);
+  const annualRetExpenseToday = re * 12;
+  const annualRetExpenseFuture = getFutureExpense(annualRetExpenseToday, ra - age, inf);
+
+  const leanN = annualRetExpenseFuture * 0.75 * 25;
+  const regN = annualRetExpenseFuture * 25;
+  const fatN = annualRetExpenseFuture * 1.5 * 25;
+
+  const baristaAnnualNeed = Math.max(0, annualRetExpenseFuture - (bi * 12));
+  const barN = baristaAnnualNeed * 25;
+
+  const cYrs = Math.max(0, ra - age);
+  const coastN = regN / Math.pow(1 + expectedReturn, Math.max(cYrs, 1));
+
+  const targetMap = { lean: leanN, regular: regN, fat: fatN, coast: coastN, barista: barN };
+  const target = targetMap[ft] || regN;
+
+  const fy = yearsToTarget(totalNow, annualSavings, gr, target, expectedReturn);
+  const fa = fy !== null ? age + fy : null;
+  const prog = Math.min(100, Math.round(totalNow / target * 100));
+
+  const estIncome = me + ms;
+  const sr = estIncome > 0 ? Math.round(ms / estIncome * 100) : 0;
+
+  const claimAge = Math.max(ra, 62);
+  const ssFac = claimAge >= 67 ? 1 : claimAge < 62 ? 0 : 0.7 + (claimAge - 62) * 0.06;
+  const ssMo = ss * ssFac;
+  const ssAnn = ssMo * 12;
+
+  const indiaPensionAnnualUSD = (ip * 12) / xr;
+  const bridgeYrs = Math.max(0, 65 - ra);
+  const bridgeCost = bridgeYrs * hc * 12;
+
+  const netWdFirstYear = Math.max(0, annualRetExpenseFuture - ssAnn - indiaPensionAnnualUSD);
+
+  let portfolioAtRet = totalNow;
+  let savingsRun = annualSavings;
+  for (let y = 0; y < cYrs; y++) {
+    portfolioAtRet = portfolioAtRet * (1 + expectedReturn) + savingsRun;
+    savingsRun = savingsRun * (1 + gr / 100);
+  }
+
+  const effWR = portfolioAtRet > 0 ? Math.round((netWdFirstYear / portfolioAtRet) * 1000) / 10 : 0;
+
+  const scens = [
+    { name: 'Lean FIRE', desc: '75% of retirement expenses', n: leanN, yr: yearsToTarget(totalNow, annualSavings, gr, leanN, expectedReturn), k: 'lean' },
+    { name: 'Barista FIRE', desc: `Partial income: +${fc(bi)}/mo`, n: barN, yr: yearsToTarget(totalNow, annualSavings, gr, barN, expectedReturn), k: 'barista' },
+    { name: 'Regular FIRE', desc: '100% expenses, 4% rule', n: regN, yr: yearsToTarget(totalNow, annualSavings, gr, regN, expectedReturn), k: 'regular' },
+    { name: 'Coast FIRE', desc: 'Invest now, stop saving later', n: coastN, yr: totalNow >= coastN ? 0 : yearsToTarget(totalNow, annualSavings, gr, coastN, expectedReturn), k: 'coast' },
+    { name: 'Fat FIRE', desc: '150% expenses, more room', n: fatN, yr: yearsToTarget(totalNow, annualSavings, gr, fatN, expectedReturn), k: 'fat' }
+  ];
+
+  return {
+    totalNow,
+    indiaAssetsUSD,
+    target,
+    leanN,
+    regN,
+    fatN,
+    barN,
+    coastN,
+    fy,
+    fa,
+    prog,
+    sr,
+    annualSavings,
+    annualRetExpenseFuture,
+    annualRetExpenseToday,
+    ssMo,
+    ssAnn,
+    bridgeYrs,
+    bridgeCost,
+    netWdFirstYear,
+    portfolioAtRet,
+    effWR,
+    expectedReturn,
+    scens,
+    cYrs
+  };
+}
+
+function buildTL(c) {
+  const { age, ra, ms, sp, gr } = S;
+  const er = getNominalReturn(sp);
+  const yrs = Math.max(ra - age + 8, 20);
+  const labels = [], pf = [], tgt = [], coast = [];
+  let p = c.totalNow;
+  let sav = ms * 12;
+
+  for (let y = 0; y <= yrs; y++) {
+    labels.push(age + y);
+    pf.push(Math.round(p));
+    tgt.push(Math.round(c.target));
+    coast.push(Math.round(c.coastN));
+    p = p * (1 + er) + sav;
+    sav = sav * (1 + gr / 100);
+  }
+  return { labels, pf, tgt, coast };
+}
+
+const cOpts = (yFmt, extra = {}) => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  interaction: { mode: 'index', intersect: false },
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      callbacks: { label: ctx => ctx.dataset.label + ': ' + fm(ctx.raw) }
+    },
+    ...extra
+  },
+  scales: {
+    x: {
+      grid: { display: false },
+      ticks: { font: { size: 10 }, maxTicksLimit: 10 }
+    },
+    y: {
+      grid: { color: COLORS.grid },
+      ticks: { font: { size: 10 }, callback: yFmt, maxTicksLimit: 6 }
+    }
+  }
+});
+
+let tlC, mcC, wrC;
+
+function initCharts() {
+  const c = calc();
+  const td = buildTL(c);
+
+  tlC = new Chart(document.getElementById('tlC').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: td.labels,
+      datasets: [
+        {
+          label: 'Portfolio',
+          data: td.pf,
+          borderColor: COLORS.primary2,
+          backgroundColor: COLORS.primarySoftFill,
+          fill: true,
+          tension: 0.35,
+          borderWidth: 2.5,
+          pointRadius: 0
+        },
+        {
+          label: 'FIRE Target',
+          data: td.tgt,
+          borderColor: COLORS.accent,
+          borderDash: [6, 4],
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: false,
+          tension: 0
+        },
+        {
+          label: 'Coast FIRE',
+          data: td.coast,
+          borderColor: COLORS.accentLine,
+          borderDash: [2, 4],
+          borderWidth: 1.4,
+          pointRadius: 0,
+          fill: false,
+          tension: 0
+        }
+      ]
+    },
+    options: cOpts(v => fm(v))
+  });
+
+  mcC = new Chart(document.getElementById('mcC').getContext('2d'), {
+    type: 'line',
+    data: { labels: [], datasets: [] },
+    options: cOpts(v => fm(v))
+  });
+
+  wrC = new Chart(document.getElementById('wrC').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: ['3%', '3.5%', '4%', '4.5%', '5%'],
+      datasets: [{
+        data: [0, 0, 0, 0, 0],
+        backgroundColor: [
+          'rgba(69,120,168,0.16)',
+          'rgba(69,120,168,0.20)',
+          COLORS.primary2,
+          'rgba(69,120,168,0.24)',
+          'rgba(69,120,168,0.28)'
+        ],
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: ctx => fc(ctx.raw) + '/yr, ' + fc(ctx.raw / 12) + '/mo' }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { font: { size: 11 } }
+        },
+        y: {
+          grid: { color: COLORS.grid },
+          ticks: { callback: v => fm(v), font: { size: 10 }, maxTicksLimit: 5 }
+        }
+      }
+    }
+  });
+
+  refresh();
+}
+
+function updateWR(c) {
+  const wrs = [3, 3.5, 4, 4.5, 5];
+  const annuals = wrs.map(w => Math.round(c.portfolioAtRet * w / 100));
+  wrC.data.datasets[0].data = annuals;
+  wrC.update('none');
+
+  document.getElementById('wr-g').innerHTML = wrs.map((w, i) =>
+    `<div class="wr-c ${w === 4 ? 'a' : ''}">
+      <div class="wr-r">${w}%</div>
+      <div class="wr-a">${fm(annuals[i])}/yr</div>
+      <div class="wr-a">${fm(annuals[i] / 12)}/mo</div>
+    </div>`
+  ).join('');
+}
+
+function refresh() {
+  const c = calc();
+  const flbl = {
+    lean: 'Lean FIRE',
+    regular: 'Regular FIRE',
+    fat: 'Fat FIRE',
+    coast: 'Coast FIRE target',
+    barista: 'Barista FIRE with side income'
+  };
+
+  document.getElementById('r-fn').textContent = fm(c.target);
+  document.getElementById('r-fl').textContent = flbl[S.ft] || '';
+
+  const yrEl = document.getElementById('r-yr');
+  if (c.fy === 0) {
+    yrEl.textContent = 'Now';
+    yrEl.className = 'mc-v c-gr';
+    document.getElementById('r-fa').textContent = 'You have reached FIRE';
+  } else if (c.fy !== null) {
+    yrEl.textContent = c.fy + ' yrs';
+    yrEl.className = 'mc-v ' + (c.fy <= 5 ? 'c-gr' : c.fy <= 15 ? 'c-or' : '');
+    document.getElementById('r-fa').textContent = 'Retire at age ' + c.fa;
+  } else {
+    yrEl.textContent = '50+ yrs';
+    yrEl.className = 'mc-v c-dn';
+    document.getElementById('r-fa').textContent = 'Increase savings or adjust goal';
+  }
+
+  document.getElementById('r-pr').textContent = c.prog + '%';
+  document.getElementById('r-pp').textContent = fm(c.totalNow) + ' of ' + fm(c.target);
+
+  const srEl = document.getElementById('r-sr');
+  srEl.textContent = c.sr + '%';
+  srEl.className = 'mc-v ' + (c.sr >= 40 ? 'c-gr' : c.sr >= 25 ? 'c-or' : 'c-dn');
+
+  document.getElementById('r-pb').style.width = c.prog + '%';
+  document.getElementById('r-pl').textContent = fm(c.totalNow) + ' today';
+  document.getElementById('r-pr2').textContent = 'Target: ' + fm(c.target);
+
+  document.getElementById('n-iu').textContent = fm(c.indiaAssetsUSD);
+  document.getElementById('n-is').textContent = '₹' + S.il + 'L at ₹' + S.xr + ' per dollar';
+
+  document.getElementById('n-hc').textContent = c.bridgeCost > 0 ? fm(c.bridgeCost) : 'None needed';
+  document.getElementById('n-hs').textContent = c.bridgeYrs > 0
+    ? c.bridgeYrs + ' yrs pre-Medicare at $' + S.hc.toLocaleString() + '/mo'
+    : 'Medicare-eligible at retirement';
+
+  document.getElementById('n-ss').textContent = fm(c.ssAnn) + '/yr';
+  document.getElementById('n-sss').textContent = '$' + Math.round(c.ssMo).toLocaleString() + '/mo claiming at ' + Math.max(S.ra, 62);
+
+  document.getElementById('n-nw').textContent = fm(c.netWdFirstYear) + '/yr';
+  document.getElementById('n-ns').textContent = 'After SS and India pension';
+
+  document.getElementById('n-cf').textContent = fm(c.coastN);
+  const coastDiff = c.coastN - c.totalNow;
+  document.getElementById('n-cs').textContent = coastDiff <= 0
+    ? 'Past Coast FIRE, you could stop saving'
+    : fm(coastDiff) + ' more to reach coast';
+
+  const ewEl = document.getElementById('n-ew');
+  ewEl.textContent = c.effWR + '%';
+  ewEl.className = 'nc-v ' + (c.effWR <= 3.5 ? 'c-gr' : c.effWR <= 4.5 ? 'c-or' : 'c-dn');
+  document.getElementById('n-es').textContent = c.effWR <= 4 ? 'Within a safer range' : 'Later FIRE or lower spending may help';
+
+  document.getElementById('sc-body').innerHTML = c.scens.map(s => {
+    const isA = s.k === S.ft;
+    const yr = s.yr === 0 ? 'Now' : s.yr !== null ? s.yr + ' yrs' : '50+';
+    const ag = s.yr === 0 ? '✓' : s.yr !== null ? (S.age + s.yr) + '' : '-';
+    return `
+      <tr class="${isA ? 'hl' : ''}">
+        <td style="font-weight:700">${s.name}</td>
+        <td style="color:var(--text-soft)">${s.desc}</td>
+        <td>${fm(s.n)}</td>
+        <td style="color:${s.yr !== null && s.yr <= 8 ? 'var(--success)' : 'inherit'}">${yr}</td>
+        <td>${ag}</td>
+      </tr>
+    `;
+  }).join('');
+
+  const ib = document.getElementById('insight-box');
+  const insights = [];
+
+  if (S.bi > 0) {
+    insights.push(`Barista income of ${fc(S.bi)}/mo reduces your FIRE number by ${fm(c.regN - c.barN)}.`);
+  }
+  if (c.totalNow >= c.coastN) {
+    insights.push('You have already crossed Coast FIRE. Even without new savings, your portfolio may still reach your retirement target by age ' + S.ra + '.');
+  }
+  if (c.effWR > 4.5) {
+    insights.push('Your effective withdrawal rate is above 4.5%. That raises sequence risk, so check the Monte Carlo view.');
+  }
+  if (S.ss > 0 && S.ra < 65) {
+    insights.push('Retiring at ' + S.ra + ' leaves a ' + c.bridgeYrs + '-year healthcare bridge before Medicare.');
+  }
+
+  ib.style.display = insights.length ? '' : 'none';
+  ib.textContent = insights[0] || '';
+
+  if (tlC) {
+    const td = buildTL(c);
+    tlC.data.labels = td.labels;
+    tlC.data.datasets[0].data = td.pf;
+    tlC.data.datasets[1].data = td.tgt;
+    tlC.data.datasets[2].data = td.coast;
+    tlC.update('none');
+  }
+
+  updateWR(c);
+}
+
+function randn() {
+  let u = 0, v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+function runMC() {
+  const btn = document.getElementById('mc-btn');
+  btn.disabled = true;
+  btn.textContent = 'Simulating 1,000 paths...';
+
+  setTimeout(() => {
+    const c = calc();
+    const { age, ra, le, ms, sp, gr, inf } = S;
+    const totalNow = c.totalNow;
+    const stockPct = sp / 100;
+    const bondPct = 1 - stockPct;
+
+    const MU_S = 0.07, SIG_S = 0.15;
+    const MU_B = 0.02, SIG_B = 0.07;
+
+    const accY = Math.max(0, ra - age);
+    const wdY = Math.max(0, le - ra);
+    const totY = accY + wdY;
+    const N = 1000;
+
+    const paths = [];
+    let ok = 0;
+
+    for (let s = 0; s < N; s++) {
+      let p = totalNow;
+      let sav = ms * 12;
+      let wd = c.netWdFirstYear;
+      const path = [p];
+      let fail = false;
+
+      for (let y = 0; y < accY; y++) {
+        const r = stockPct * (MU_S + SIG_S * randn()) + bondPct * (MU_B + SIG_B * randn());
+        p = Math.max(0, p * (1 + r) + sav);
+        sav = sav * (1 + gr / 100);
+        path.push(p);
+      }
+
+      for (let y = 0; y < wdY; y++) {
+        const r = stockPct * (MU_S + SIG_S * randn()) + bondPct * (MU_B + SIG_B * randn());
+        p = p * (1 + r) - wd;
+        wd = wd * (1 + inf / 100);
+        if (p <= 0) {
+          p = 0;
+          fail = true;
+        }
+        path.push(p);
+      }
+
+      paths.push(path);
+      if (!fail) ok++;
+    }
+
+    const successRate = Math.round(ok / N * 100);
+    const labels = [], p10 = [], p25 = [], p50 = [], p75 = [], p90 = [];
+
+    for (let y = 0; y <= totY; y++) {
+      const vals = paths.map(p => p[y]).sort((a, b) => a - b);
+      const g = i => vals[Math.min(Math.floor(N * i), N - 1)] || 0;
+      labels.push(age + y);
+      p10.push(Math.round(g(0.10)));
+      p25.push(Math.round(g(0.25)));
+      p50.push(Math.round(g(0.50)));
+      p75.push(Math.round(g(0.75)));
+      p90.push(Math.round(g(0.90)));
+    }
+
+    mcC.data.labels = labels;
+    mcC.data.datasets = [
+      {
+        label: 'p10',
+        data: p10,
+        borderColor: 'transparent',
+        backgroundColor: 'transparent',
+        fill: false,
+        pointRadius: 0,
+        tension: 0.28
+      },
+      {
+        label: 'Outer range',
+        data: p90,
+        borderColor: 'transparent',
+        backgroundColor: COLORS.primarySoftFill,
+        fill: { target: 0 },
+        pointRadius: 0,
+        tension: 0.28
+      },
+      {
+        label: 'p25',
+        data: p25,
+        borderColor: 'transparent',
+        backgroundColor: 'transparent',
+        fill: false,
+        pointRadius: 0,
+        tension: 0.28
+      },
+      {
+        label: 'Inner range',
+        data: p75,
+        borderColor: 'transparent',
+        backgroundColor: COLORS.primarySoftFillStrong,
+        fill: { target: 2 },
+        pointRadius: 0,
+        tension: 0.28
+      },
+      {
+        label: 'Median',
+        data: p50,
+        borderColor: COLORS.primary2,
+        backgroundColor: 'transparent',
+        fill: false,
+        borderWidth: 2.5,
+        pointRadius: 0,
+        tension: 0.28
+      }
+    ];
+    mcC.update();
+
+    const cls = successRate >= 90 ? 'sm-gr' : successRate >= 75 ? 'sm-wa' : 'sm-dn';
+    const vcls = successRate >= 90 ? 'c-gr' : successRate >= 75 ? 'c-wa' : 'c-dn';
+
+    const msgs = {
+      90: 'Strong plan. It holds up in most market paths, including some ugly ones early on.',
+      75: 'Decent base. A bad stretch early in retirement can still pressure the plan.',
+      60: 'Middle zone. A lower withdrawal rate or more flexible spending would help.',
+      0: 'High failure risk. Timeline, expenses, or savings likely need a reset.'
+    };
+
+    const msg = successRate >= 90 ? msgs[90] : successRate >= 75 ? msgs[75] : successRate >= 60 ? msgs[60] : msgs[0];
+
+    document.getElementById('mc-res').style.display = '';
+    document.getElementById('mc-res').innerHTML =
+      `<div class="sm ${cls}">
+        <div class="sm-p ${vcls}">${successRate}%</div>
+        <div class="sm-d"><b>Plan success rate</b> across 1,000 Monte Carlo simulations<br>${msg}</div>
+      </div>`;
+
+    btn.disabled = false;
+    btn.textContent = 'Re-run Simulation';
+  }, 20);
+}
+
+let activT = 'tl';
+function sw(t) {
+  activT = t;
+  ['tl', 'mc', 'wr'].forEach(id => {
+    document.getElementById('p-' + id).style.display = id === t ? '' : 'none';
+    document.getElementById('tab-' + id).classList.toggle('a', id === t);
+  });
+  setTimeout(() => {
+    if (t === 'mc' && mcC) mcC.resize();
+    if (t === 'wr' && wrC) wrC.resize();
+    if (t === 'tl' && tlC) tlC.resize();
+  }, 60);
+}
+
+initCharts();
+</script>
+
+</body>
+</html>
